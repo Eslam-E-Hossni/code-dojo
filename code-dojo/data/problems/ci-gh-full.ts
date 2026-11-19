@@ -1,0 +1,85 @@
+import type { ConfigProblem } from "../types";
+import * as g from "./ci-github-steps";
+
+export const ciGhFull: ConfigProblem = {
+  id: "ci-gh-full",
+  kind: "config",
+  group: "ci-github",
+  title: "GitHub Actions: full CI",
+  difficulty: "medium",
+  tag: "likely",
+  statement:
+    "Write a full CI workflow for a front-end project. On every push to main and on every pull request it runs lint, then the type check, then the tests, then the build. The npm dependencies are cached.",
+  askFirst: [
+    "Which scripts does package.json have: lint, type-check, test, build?",
+    "In which order should the checks run, and should a failure stop the rest?",
+    "Is the lock file committed? The cache key is made from it.",
+  ],
+  edgeCases: [
+    "A lint error should stop the job before the slow steps start",
+    "The cache must be renewed when package-lock.json changes",
+    "continue-on-error on a check would let a broken pull request look green",
+  ],
+  complexity: "Order the checks from the fastest to the slowest: lint, type check, tests, build. The first failure stops the job.",
+  idea: "الـ CI الكامل هو نفس الـ workflow الصغير ومعاه كل الفحوصات، مرتبة من الأسرع للأبطأ. أول فحص يقع بيوقّف الباقي، فالغلطة البسيطة بتبان في ثواني. والـ cache بيخلّي `npm ci` ميحمّلش كل حاجة من الأول كل مرة.",
+  file: ".github/workflows/ci.yml",
+  language: "yaml",
+  twin: "ci-az-full",
+  rules: [
+    "ci-valid-yaml",
+    "gh-known-keys",
+    "gh-trigger",
+    "gh-runs-on",
+    "gh-checkout",
+    "gh-pinned-actions",
+    "gh-node-version",
+    "gh-cache",
+    "gh-npm-ci",
+    "gh-order-full",
+    "gh-stops-on-failure",
+  ],
+  parts: [
+    {
+      id: "main",
+      title: "ci.yml",
+      signature: ".github/workflows/ci.yml",
+      steps: [
+        ...g.header("CI", "نبدأ يا إسلام بنفس البداية: اسم الـ workflow، وهو `CI`."),
+        g.jobs(),
+        g.job("build", "job واحدة فيها كل الفحوصات والـ build. سمّيها `build`."),
+        g.runsOn(),
+        g.steps(),
+        g.checkout(),
+        g.setupNode(),
+        g.withInputs(),
+        g.nodeVersion(),
+        g.cacheNpm(),
+        g.npmCi(),
+        g.lint(),
+        g.typeCheck(),
+        g.test("بعده الـ tests."),
+        g.build(),
+      ],
+    },
+  ],
+  followUps: [
+    {
+      question: "Why this order: lint, type check, tests, build?",
+      answer: "The cheapest checks run first, so a simple mistake fails fast.",
+      how: "A step that fails stops the job, and the steps after it are skipped.",
+      example: "A lint error stops the job in seconds, before the tests and the build start.",
+    },
+    {
+      question: "How does the dependency cache work?",
+      answer: "The npm cache folder is saved at the end of a run and restored at the start of the next one.",
+      how: "The cache key is a hash of package-lock.json. When the lock file changes, the key changes and a new cache is saved.",
+      example: "with:  cache: npm   (on actions/setup-node)",
+    },
+    {
+      question: "Why pin an action to a version?",
+      answer: "An action is someone else's code. It runs inside the pipeline, next to the secrets.",
+      how: "A tag like @v7 changes only when I change it. The strictest form is a full commit SHA, because a tag can be moved.",
+      example: "uses: actions/checkout@v7, never @main",
+    },
+  ],
+};

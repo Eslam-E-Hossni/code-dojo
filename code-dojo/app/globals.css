@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-plex-arabic), "Segoe UI", Tahoma, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "Cascadia Code", Consolas, ui-monospace, monospace;
+}
+
+@theme {
+  --color-bg: #0c0f14;
+  --color-panel: #131821;
+  --color-raised: #1b222d;
+  --color-line: #28313e;
+  --color-ink: #e9edf3;
+  --color-mut: #9ba7b9;
+  --color-faint: #667285;
+  --color-gold: #f2b84b;
+  --color-ok: #4fd19a;
+  --color-warn: #f59e5b;
+  --color-bad: #ff7b72;
+  --color-editor: #0f141b;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/*
+ * Left-to-right islands. Code and English sentences sit in their own
+ * isolated block, so Arabic text around them never reorders them.
+ */
+.ltr {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+
+.inline-code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--color-raised);
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  padding: 0.05em 0.4em;
+  white-space: nowrap;
+}
+
+.code-block {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  background: var(--color-editor);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ---- Monaco decorations (class names are set in DojoEditor) ---- */
+
+.dojo-locked {
+  background: rgba(255, 255, 255, 0.028);
+}
+
+.dojo-bar {
+  width: 3px !important;
+  margin-left: 4px;
+  border-radius: 2px;
+}
+.dojo-bar-first {
+  background: var(--color-ok);
+}
+.dojo-bar-second,
+.dojo-bar-third {
+  background: var(--color-warn);
+}
+.dojo-bar-revealed {
+  background: var(--color-bad);
+}
+
+.dojo-wrong {
+  background: rgba(255, 123, 114, 0.16);
+  text-decoration: underline wavy var(--color-bad);
+  text-underline-offset: 4px;
+}
+.dojo-missing {
+  color: var(--color-bad);
+  font-weight: 700;
+}
+
+/* ---- Hover help in a config file (Dockerfile) ----
+   The help is Arabic with code terms in it. Every paragraph takes the
+   direction of its own first letter, and code always reads left-to-right. */
+.monaco-hover p {
+  unicode-bidi: plaintext;
+  text-align: start;
+  line-height: 1.7;
+}
+.monaco-hover code {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
