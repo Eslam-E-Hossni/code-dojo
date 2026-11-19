@@ -331,7 +331,7 @@ function decide(problem: CodeProblem, state: CheckState, input: string): Decisio
           if (ref === null) continue;
           // A text that needed a hole to parse ("return (" with nothing in it yet) can only
           // be a whole step when the reference stops at the same place and needs the same hole.
-          if (ref.parsed.repaired !== mine.repaired) continue;
+          if (ref.parsed.repaired !== mine.repaired || ref.parsed.missing !== mine.missing) continue;
           context.pairs = new Map();
           context.pieceEnds = new Map();
           if (compare(userTree, ref.tree, null, "", context) === null) {

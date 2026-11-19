@@ -33,6 +33,16 @@ import { promiseAll } from "./promise-all";
 import { promiseAllSettled } from "./promise-all-settled";
 import { promiseAny } from "./promise-any";
 import { promiseRace } from "./promise-race";
+import { reactAutoCounter } from "./react-auto-counter";
+import { reactCounter } from "./react-counter";
+import { reactDebounceSearch } from "./react-debounce-search";
+import { reactReview } from "./react-review";
+import { reactTimer } from "./react-timer";
+import { reactTodos } from "./react-todos";
+import { reactUseContext } from "./react-use-context";
+import { reactUseFetch } from "./react-use-fetch";
+import { reactUsersTable } from "./react-users-table";
+import { reactWizard } from "./react-wizard";
 import { removeDuplicates } from "./remove-duplicates";
 import { reverseString } from "./reverse-string";
 import { secondLargest } from "./second-largest";
@@ -101,12 +111,30 @@ export const problems: Problem[] = [
   asyncAwaitOrder,
   valueVsReference,
 
+  // React
+  reactCounter,
+  reactTimer,
+  reactAutoCounter,
+  reactTodos,
+  reactDebounceSearch,
+  reactUseFetch,
+  reactUseContext,
+  reactUsersTable,
+  reactWizard,
+  reactReview,
+
   // EventEmitter
   eventEmitter,
 ];
 
 /** The problems that are code to write: they have steps, the three modes and hidden tests. */
 export const codeProblems: CodeProblem[] = problems.filter((problem): problem is CodeProblem => problem.kind === "code");
+
+/** The React problems: JSX, a live preview, and hidden tests that render the component. */
+export const reactProblems: CodeProblem[] = codeProblems.filter((problem) => problem.react !== undefined);
+
+/** The code problems that are plain JavaScript: their hidden tests run in the worker. */
+export const plainProblems: CodeProblem[] = codeProblems.filter((problem) => problem.react === undefined);
 
 /** The "what does this print?" questions. */
 export const outputProblems: OutputProblem[] = problems.filter(

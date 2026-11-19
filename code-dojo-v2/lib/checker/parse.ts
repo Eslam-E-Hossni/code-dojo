@@ -55,6 +55,13 @@ export interface Parsed {
   open: Opener[];
   /** True when a hole or a body had to be added, not only closing brackets. */
   repaired: boolean;
+  /**
+   * Which half of a conditional had to be added, or "" when none was.
+   * Two texts stop at the same place of a conditional only when this is
+   * the same: "a ? (" and "a ? (b" both parse with a hole, but they are
+   * not the same step.
+   */
+  missing: string;
 }
 
 export type ParseResult = { ok: true; parsed: Parsed } | { ok: false; problem: SyntaxProblem };
@@ -99,7 +106,7 @@ export function parseOpen(text: string, language: CodeLanguage): ParseResult {
   const afterParen = firstParen === -1 ? null : closers.slice(firstParen + 1).join("");
 
   const body = text.trimEnd();
-  const attempts: { code: string; repaired: boolean }[] = [{ code: body + "\n" + all, repaired: false }];
+  const attempts: { code: string; repaired: boolean; missing?: string }[] = [{ code: body + "\n" + all, repaired: false }];
   attempts.push({ code: body + " " + HOLE + "\n" + all, repaired: true });
   attempts.push({ code: body + " {}\n" + all, repaired: true });
   attempts.push({ code: body + " " + HOLE + " {}\n" + all, repaired: true });
@@ -115,13 +122,33 @@ export function parseOpen(text: string, language: CodeLanguage): ParseResult {
     attempts.push({ code: body + "{" + HOLE + "}\n" + all, repaired: true });
   }
 
+  // A conditional that has its question mark but not its second branch yet:
+  //   {list.length === 0 ? (          the first branch is still to come
+  //     <p>Nothing.</p>               the first branch is there, ") : (" is still to come
+  if (body.includes("?")) {
+    const other = " : " + HOLE;
+    attempts.push({ code: body + other + "\n" + all, repaired: true, missing: "else" });
+    attempts.push({ code: body + " " + HOLE + other + "\n" + all, repaired: true, missing: "then, else" });
+    if (upToParen !== null && afterParen !== null) {
+      attempts.push({ code: body + upToParen + other + "\n" + afterParen, repaired: true, missing: "else" });
+      attempts.push({ code: body + " " + HOLE + upToParen + other + "\n" + afterParen, repaired: true, missing: "then, else" });
+    }
+  }
+
   let firstError: unknown = null;
   for (const attempt of attempts) {
     try {
       const ast = parseStrict(attempt.code, language);
       return {
         ok: true,
-        parsed: { ast, code: attempt.code, length: body.length, open: scanned.open, repaired: attempt.repaired },
+        parsed: {
+          ast,
+          code: attempt.code,
+          length: body.length,
+          open: scanned.open,
+          repaired: attempt.repaired,
+          missing: attempt.missing ?? "",
+        },
       };
     } catch (error) {
       if (firstError === null) firstError = error;
@@ -138,7 +165,7 @@ export function parseOpen(text: string, language: CodeLanguage): ParseResult {
 export function parseWhole(code: string, language: CodeLanguage): ParseResult {
   try {
     const ast = parseStrict(code, language);
-    return { ok: true, parsed: { ast, code, length: code.trimEnd().length, open: [], repaired: false } };
+    return { ok: true, parsed: { ast, code, length: code.trimEnd().length, open: [], repaired: false, missing: "" } };
   } catch (error) {
     return { ok: false, problem: plainMessage(error) };
   }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groups } from "@/data/groups";
-import { codeProblems, problems } from "@/data/problems";
+import { plainProblems, problems } from "@/data/problems";
 import { interviewTemplate } from "@/data/template";
 import { dataRules } from "./rules";
 
@@ -27,6 +27,6 @@ describe("the problem list", () => {
   });
 });
 
-describe.each(codeProblems)("data of $id", (problem) => {
+describe.each(plainProblems)("data of $id", (problem) => {
   dataRules(problem);
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { codeProblems } from "@/data/problems";
+import { codeProblems, plainProblems } from "@/data/problems";
 import type { CodeProblem } from "@/data/types";
 import { partSolution, solutionText } from "@/lib/checker/check";
 import { bannedIn, formatDuration, PRACTICE_POINTS, practicePoints } from "@/lib/practice";
@@ -29,7 +29,7 @@ describe("points in Recall and Exam", () => {
   });
 });
 
-describe.each(codeProblems)("$id written whole, as in Recall and Exam", (problem) => {
+describe.each(plainProblems)("$id written whole, as in Recall and Exam", (problem) => {
   it("the reference solution passes every hidden test and has nothing banned", async () => {
     const verdict = await judgeWhole(problem, solutionText(problem));
     expect(verdict.report.fatal).toBeNull();

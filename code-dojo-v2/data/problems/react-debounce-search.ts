@@ -277,7 +277,7 @@ export const reactDebounceSearch: CodeProblem = {
   ],
   react: {
     risky: ["state-mutation", "list-key", "effect-cleanup"],
-    preview: {},
+    preview: { console: true },
     screen: [
       "useDebounce(value, delay) gives the value back only after it has stopped changing for the delay. Without a delay it waits 300 ms.",
       'Search shows one input with the placeholder "Search", and the input shows each letter at once.',
